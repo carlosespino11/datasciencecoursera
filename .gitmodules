@@ -1,0 +1,3 @@
+[submodule "Reproducible Research/RepData_PeerAssessment1"]
+	path = Reproducible Research/RepData_PeerAssessment1
+	url = https://github.com/carlosespino11/RepData_PeerAssessment1.git
