@@ -16,11 +16,12 @@ best <- function(state, outcome) {
   } else {
     stop("invalid outcome")
   }
-  filtered = data %>% select(var_name = one_of(var_name), State, Hospital.Name) %>% filter(State == state) %>% 
-    na.omit() %>%
-    arrange(var_name) %>%slice(1)
+  filtered = data %>% select(var_name = one_of(var_name), State, Hospital.Name) %>% mutate(var_name = as.numeric(as.character(var_name))) %>% 
+    filter(State == state) %>% 
+    na.omit() %>% filter(var_name==min(var_name)) %>% arrange(Hospital.Name) %>% slice(1)
+  
+  
   
   filtered$Hospital.Name
 
 }
-best("TX", "heart attack")

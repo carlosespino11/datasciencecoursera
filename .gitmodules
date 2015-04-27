@@ -8,3 +8,6 @@
 [submodule "R Programming/ProgrammingAssignment2"]
 	path = R Programming/ProgrammingAssignment2
 	url = https://github.com/carlosespino11/ProgrammingAssignment2.git
+[submodule "Getting and Cleaning Data/GCD_Project"]
+	path = Getting and Cleaning Data/GCD_Project
+	url = https://github.com/carlosespino11/GCD_Project.git
