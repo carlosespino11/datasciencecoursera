@@ -1,5 +1,12 @@
-Getting and Cleaning Data/Project/.RData
-Getting and Cleaning Data/Project/.Rhistory
+*.RData
+*.Rhistory
+*.gz
+*.out
+*.log
+*.fls
+*.fdb_latexmk
+*.aux
+*.bz2
 Exploratory Data Analysis/Course Project 1/activity.zip
 Exploratory Data Analysis/Course Project 2/Source_Classification_Code.rds
 Exploratory Data Analysis/Course Project 2/data.zip

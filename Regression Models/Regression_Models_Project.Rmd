@@ -1,0 +1,103 @@
+---
+title: "Regression Models Project"
+author: "Carlos Espino García"
+date: "July 23, 2015"
+output: 
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    latex_engine: xelatex
+    number_sections: yes
+---
+```{r table_by_supp_dose,message=FALSE, warning=FALSE, echo=FALSE,fig.cap="Mean length by method and dose"}
+library(ggfortify)
+library(ggplot2)
+library(GGally)
+library(dplyr)
+library(MASS)
+library(xtable)
+
+data("mtcars")
+
+mtcars$am = factor(mtcars$am, labels = c("A", "M"))
+```
+\section{Overview}
+The purpose of this project is to analyze a data set of a collection of cars, and explore the relationship between a set of variables and miles per gallon. We are particularly interested in answering two questions:
+1. Is an automatic or manual transmission better for MPG?
+2. Quantify the MPG difference between automatic and manual transmissions
+
+\section{Dataset}
+The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973–74 models). The 11 variables are the following:
+
+1. \textbf{mpg}	Miles/(US) gallon
+2. \textbf{cyl}	Number of cylinders
+3. \textbf{disp} Displacement (cu.in.)
+4. \textbf{hp} Gross horsepower
+5. \textbf{drat} Rear axle ratio
+6. \textbf{wt} Weight (lb/1000)
+7. \textbf{qsec} 1/4 mile time
+8. \textbf{vs} V/S
+9. \textbf{am} Transmission (A = automatic, M = manual)
+10. \textbf{gear}	Number of forward gears
+11. \textbf{carb}	Number of carburetors
+
+\section{Exploratory Analysis}
+To see the influence of the variables, especifically the transmission, in the miles per gallon, Figure \ref{fig:cor_matrix} shows a matrix that illustrates the relation of the variables. We can appreciate that disp, hp, drat and wt have a strong linear correlation with mpg. We can appreciate as well, that the transmission seems to influence mpg, since the distribution of mpg is clearly divided by the type of transimission, we can see it more clearly in Figure \ref{fig:mpg_by_trans}.
+
+\section{Regression Analysis}
+To determine wich variables influence mpg and wether or not the transmission is important, we proceed to perform a regression analysis.
+
+\subsection{Model Selection}
+We first need to determine the method to use to select the "best" model. We are going choose the model by AIC in a backwards stepwise algorithm. 
+
+The Akaike Information Criteria (AIC) is a commonly used statistic to measures the relative goodness of fit. The AIC is a way of comparing different models against each other.
+
+The backwards stepwise algorithm consists in the following:
+
+1. Start with all candidate variables.
+2. Test the deletion of each variable using a chosen model comparison criterion, in this case the AIC criterion.
+3. Delete the variable (if any) that improves the model the most by being deleted.
+4. Repeat this process until no further improvement is possible.
+
+To perform the analysis, we take the transmission level "Automatic" (A) as the base level for the variable am. We define the variable $amM = I_{am=M}$. 
+
+After following the last steps, we get the following model. 
+
+$$\mbox{mpg} = 9.62 - 3.92\mbox{wt} + 1.23\mbox{qsec} + 2.94\mbox{amM} + \epsilon $$
+
+```{r message=FALSE,warning=FALSE, echo=FALSE, results='hide'}
+fit <- lm(mpg ~ cyl+disp+hp+drat+wt+qsec+vs+am+gear+carb,mtcars)
+fit_select<- stepAIC(fit, direction="backward")
+```
+
+The summary of the coefficients is shown in the next table
+```{r lm_summary, fig.cap="Coefficients", echo=FALSE,results='asis'}
+print(xtable(fit_select),comment=FALSE)
+```
+\textbf{The steps of the model selection are not shown due to limitations of space}
+
+\subsection{Coefficient Interpretation}
+We can interpret the coefficient as follows:
+1. For each additional 1000 lbs. of weight, the miles per gallon decrease in 3.92.
+2. If each quarter mile increase, the miles per gallon increase in 1.22.
+3. The manual transmission increases the miles per gallon in 2.94 in average from the automatic transmission.
+
+\subsection{Residual Analysis}
+We need to perform a residual analysis to prove the assumptions of regression analysis. Figure \ref{residuals_plot} shows some plots that help for this analysis. We can see in the QQ-plot that the quantiles of th residuals against the theoretical residual approximately follow the reference line. The assumption of homoscedastic seems to be followed. We can appreciate as well that Fiat 128, Toyota Corolla and Chrysler Imperial are outlyers and need a deeper analysis.
+
+\section{Conclusion}
+According to the model selection criteria used, the variables wt, qsec and am are the most important to explain mpg. \textbf{We saw that the manual transmission is better for the performance of the car as it increases its miles per gallon in 2.94.}
+
+```{r cor_matrix,echo=FALSE,fig.cap="Correlations by transmission",fig.align='center',message=FALSE,warning=FALSE,fig.width=15,fig.height=15}
+ggpairs(mtcars, color="am")
+
+```
+
+```{r mpg_by_trans,fig.cap="mpg by transmission",out.width=".6\\textwidth",fig.align='center',echo=FALSE}
+ggplot(mtcars) + geom_boxplot(aes(x = am, y=mpg, fill=am))
+```
+
+```{r residuals_plot, fig.cap="Residual analysis plots", echo=FALSE, fig.width=12, fig.height=8}
+autoplot(fit_select,which = 1:6, ncol = 3)
+```
+

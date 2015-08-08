@@ -1,0 +1,108 @@
+---
+title: "Simulation Project"
+author: "Carlos Espino García"
+date: "July 21, 2015"
+output:
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    latex_engine: xelatex
+    number_sections: yes
+---
+
+\section{Overview}
+This project presents an investigation of the exponential distribution and a comparison with the Central Limit Theorem. To achieve this, we sample the averages of 40 exponentials and analyze the distribution. First, we campare the sample and theoretical mean of averages; second, we campare the sample and theoretical variance of averages and at last we verify the normality of the distribution.
+
+\section{Simulations}
+We generate a sample of size 1000 of the average of 40 exponentials. We set $\lambda = 0.2$ for all of the simulations. 
+
+```{r}
+lambda = 0.2
+set.seed(15)
+means = unlist(lapply(1:1000, function(x){mean(rexp(40, lambda))}))
+```
+
+\section{Sample Mean versus Theoretical Mean}
+The theoretical mean is given by:
+$$
+\mbox{E}\left[\bar{X}\right] = \frac{1}{\lambda},
+$$
+
+which results in
+
+```{r results='markup'}
+theo_mean = (1/lambda)
+theo_mean
+```
+We compute the sample mean 
+```{r results='markup'}
+sample_mean = mean(means)
+sample_mean
+```
+
+The relative difference is
+```{r results='markup'}
+(theo_mean-sample_mean)/theo_mean
+```
+
+
+\section{Sample Variance versus Theoretical Variance}
+The theoretical variance is given by:
+$$
+\mbox{Var}\left(\bar{X}\right) = \frac{1}{n\lambda},
+$$
+
+which results in
+
+```{r results='markup'}
+theo_var = (1/lambda^2)/40
+theo_var
+```
+We compute the sample variance
+```{r results='markup'}
+sample_var = var(means)
+sample_var
+```
+
+The relative difference is
+```{r results='markup'}
+(theo_var-sample_var)/theo_var
+```
+
+\section{Distribution}
+According to the Central Limit Theorem, the sample mean follows asymptotically a normal distribution with the theoretical mean and variance given in the previous sections.
+
+To prove the normality, first we present a QQ-plot. As shown in Figure \ref{fig:qqplot}, the points match the normal line, which means that the quantiles of the sample approximately match with the quantiles of the theoretical normal dstribution.
+
+Then, Figure \ref{fig:histogram}, shows the histogram of the sample and compares it with the bell of the normal density having the mean of the sample mean of the averages and the sample variance of the averages. As we can see, the histogram matches the bell curve, giving evidence of the normality of the average.
+
+At last, we provide a comparison between the distribution of a collection of random exponentials and the distribution of a large collection of averages of 40 exponentials. As Figure \ref{fig:expcomparison} shows, the shape of the density of the averages is like a normal density, which is coherent with the Central Limit Theorem.
+
+```{r qqplot, echo=FALSE, fig.cap="QQ-plot Sample Quantiles Vs. Theoretical Quantiles", out.width=".7\\textwidth", fig.align='center'}
+library(ggplot2)
+
+ggplot(data.frame(means= (means-sample_mean)/sqrt(sample_var))) +   
+  stat_qq(aes(sample = means)) + 
+  geom_abline(color = "blue") +
+  xlab("Theoretical quantiles") + 
+  ylab("Sample quantiles")
+```
+
+```{r histogram, echo=FALSE, fig.cap="Histogram Vs. Theoretical normal density", out.width=".7\\textwidth", fig.align='center'}
+ggplot(data.frame(averages= means)) + 
+  geom_histogram(aes(x = averages, y = ..density..), fill = "red", alpha = .5, color = "black", binwidth = .4) +
+  stat_function(fun = function(x){dnorm(x, sample_mean, sqrt(sample_var))}, size = 1)
+```
+
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='hide',eval=TRUE}
+compare_mean = rbind(data.frame(measure =means , type = "averages"), data.frame(measure= rexp(1000,lambda), type ="random exponentials"))
+
+```
+
+```{r expcomparison, echo=FALSE, fig.cap="Averages sample Vs. Average of exponentials sample", out.width=".7\\textwidth", fig.align='center',warning=FALSE, message=FALSE}
+ggplot(compare_mean) + geom_histogram(aes(x = measure, y =..density.., fill= type), color = "black", alpha=.7) +
+  facet_grid(type ~., scales = "free_y")+ theme(legend.position = "top") + scale_fill_discrete("")
+
+```
+
+

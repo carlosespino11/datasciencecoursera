@@ -1,0 +1,62 @@
+---
+title: "Tooth Growth Inferential Data Analysis"
+author: "Carlos Espino García"
+date: "July 22, 2015"
+output: 
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    latex_engine: xelatex
+    number_sections: yes
+---
+
+\section{Overview}
+This project analyzes the influence of supplement type and dose level on tooth growth of guinea pigs. To do this, ee consider two types of supplement (Vitamin C and Orange Juice) and three levels of dose (0.5mg, 1mg and 2mg) and we examine the difference of tooth length among different groups by hypothesis testing.
+
+\section{Dataset}
+Each observation of the corresponds to the measure of length of odontoblasts in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid).
+
+1. \textbf{len}: is the length of odontoblasts (teeth) in each of 10 guinea pigs.
+2. \textbf{supp}: corresponds to the two delivery methods (orange juice or ascorbic acid).
+3. \textbf{dose}: corresponds the levels of Vitamin C (0.5, 1, and 2 mg)
+
+\section{Exploratory Analysis}
+The table shows the mean length of the t
+```{r table_by_supp_dose,message=FALSE, warning=FALSE, echo=FALSE,fig.cap="Mean length by method and dose"}
+library(dplyr)
+library(GGally)
+library(ggplot2)
+library(xtable)
+
+data(ToothGrowth)
+ToothGrowth$dose = factor(ToothGrowth$dose)
+len_by_supp_dose = ToothGrowth %>% group_by(supp,dose) %>% summarize(mean(len))
+```
+
+```{r fig.cap="Boxplot by supplement type", echo=FALSE,results='asis'}
+print(xtable(len_by_supp_dose),comment=FALSE, include.rownames = getOption("xtable.include.rownames", FALSE))
+```
+
+```{r bp_by_supp,echo=FALSE,fig.cap="Boxplot by supplement type",out.width=".7\\textwidth",fig.align='center'}
+ggplot(ToothGrowth) + geom_boxplot(aes(x = supp, y = len, fill = supp))
+```
+
+```{r bp_by_dose,echo=FALSE,fig.cap="Boxplot by dose",out.width=".7\\textwidth",fig.align='center'}
+ggplot(ToothGrowth) + geom_boxplot(aes(x = dose, y = len, fill =dose)) 
+```
+
+```{r bp_by_dose_and_supp,echo=FALSE,fig.cap="Boxplot by dose",out.width=".7\\textwidth",fig.align='center'}
+ggplot(ToothGrowth) + geom_boxplot(aes(x = dose, y = len, fill =supp)) 
+```
+
+
+```{r bp_by_supp_and_dose,fig.cap="Boxplot by dose",out.width=".7\\textwidth",fig.align='center'}
+ggplot(ToothGrowth) + geom_boxplot(aes(x = supp, y = len, fill =dose)) 
+```
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
